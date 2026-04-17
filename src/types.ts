@@ -4,7 +4,8 @@ export type ExtensionMessage =
   | { type: 'SEARCH_CREDENTIALS'; keyword: string }
   | { type: 'AUTO_FILL'; credentialId: number }
   | { type: 'CHECK_VAULT_STATUS' }
-  | { type: 'LOGIN_FORM_DETECTED'; url: string };
+  | { type: 'LOGIN_FORM_DETECTED'; url: string }
+  | { type: 'FILL_CREDENTIALS'; username: string; password: string };
 
 // ---- Auto-fill data ----
 

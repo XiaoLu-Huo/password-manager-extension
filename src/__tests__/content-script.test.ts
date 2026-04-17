@@ -1,12 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { detectLoginForm } from '../content-script';
-
-// Mock chrome.runtime.sendMessage
-vi.stubGlobal('chrome', {
-  runtime: {
-    sendMessage: vi.fn(),
-  },
-});
+import { detectLoginForm, fillCredentials } from '../content-script';
 
 describe('detectLoginForm', () => {
   beforeEach(() => {
@@ -88,5 +81,68 @@ describe('detectLoginForm', () => {
   it('should return null for empty page', () => {
     document.body.innerHTML = '';
     expect(detectLoginForm()).toBeNull();
+  });
+});
+
+describe('fillCredentials', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('should fill username and password into form fields', () => {
+    document.body.innerHTML = `
+      <form>
+        <input type="text" name="username" />
+        <input type="password" name="password" />
+      </form>
+    `;
+
+    const result = fillCredentials('testuser', 'testpass');
+    expect(result).toBe(true);
+
+    const usernameInput = document.querySelector<HTMLInputElement>('input[name="username"]');
+    const passwordInput = document.querySelector<HTMLInputElement>('input[name="password"]');
+    expect(usernameInput!.value).toBe('testuser');
+    expect(passwordInput!.value).toBe('testpass');
+  });
+
+  it('should fill only password when no username field exists', () => {
+    document.body.innerHTML = `
+      <form>
+        <input type="password" name="password" />
+      </form>
+    `;
+
+    const result = fillCredentials('testuser', 'testpass');
+    expect(result).toBe(true);
+
+    const passwordInput = document.querySelector<HTMLInputElement>('input[name="password"]');
+    expect(passwordInput!.value).toBe('testpass');
+  });
+
+  it('should return false when no login form exists', () => {
+    document.body.innerHTML = '<div>No form here</div>';
+    const result = fillCredentials('testuser', 'testpass');
+    expect(result).toBe(false);
+  });
+
+  it('should dispatch input and change events on filled fields', () => {
+    document.body.innerHTML = `
+      <form>
+        <input type="text" name="username" />
+        <input type="password" name="password" />
+      </form>
+    `;
+
+    const passwordInput = document.querySelector<HTMLInputElement>('input[name="password"]')!;
+    const inputHandler = vi.fn();
+    const changeHandler = vi.fn();
+    passwordInput.addEventListener('input', inputHandler);
+    passwordInput.addEventListener('change', changeHandler);
+
+    fillCredentials('testuser', 'testpass');
+
+    expect(inputHandler).toHaveBeenCalled();
+    expect(changeHandler).toHaveBeenCalled();
   });
 });
