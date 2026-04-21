@@ -5,7 +5,9 @@
   "description": "Password Manager Chrome Extension - Quick search and auto-fill credentials",
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "clipboardWrite",
+    "webNavigation"
   ],
   "host_permissions": [
     "http://localhost:8080/*"
@@ -18,7 +20,8 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content-script.js"],
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "all_frames": true
     }
   ],
   "action": {

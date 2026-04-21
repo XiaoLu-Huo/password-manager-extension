@@ -1,18 +1,27 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
-import { copyFileSync } from 'fs';
+import { copyFileSync, mkdirSync, existsSync, readdirSync } from 'fs';
 
 export default defineConfig({
   plugins: [
     react(),
     {
-      name: 'copy-manifest',
+      name: 'copy-static-assets',
       writeBundle() {
         copyFileSync(
           resolve(__dirname, 'manifest.json'),
           resolve(__dirname, 'dist/manifest.json'),
         );
+        // Copy icons
+        const iconsDir = resolve(__dirname, 'icons');
+        const distIconsDir = resolve(__dirname, 'dist/icons');
+        if (existsSync(iconsDir)) {
+          mkdirSync(distIconsDir, { recursive: true });
+          for (const file of readdirSync(iconsDir)) {
+            copyFileSync(resolve(iconsDir, file), resolve(distIconsDir, file));
+          }
+        }
       },
     },
   ],

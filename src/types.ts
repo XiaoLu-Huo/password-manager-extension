@@ -2,10 +2,19 @@
 
 export type ExtensionMessage =
   | { type: 'SEARCH_CREDENTIALS'; keyword: string }
+  | { type: 'LIST_CREDENTIALS' }
   | { type: 'AUTO_FILL'; credentialId: number }
   | { type: 'CHECK_VAULT_STATUS' }
   | { type: 'LOGIN_FORM_DETECTED'; url: string }
-  | { type: 'FILL_CREDENTIALS'; username: string; password: string };
+  | { type: 'FILL_CREDENTIALS'; username: string; password: string }
+  | { type: 'UNLOCK_VAULT'; masterPassword: string }
+  | { type: 'VERIFY_TOTP'; totpCode: string }
+  | { type: 'GET_CREDENTIAL'; credentialId: number }
+  | { type: 'REVEAL_PASSWORD'; credentialId: number }
+  | { type: 'CREATE_CREDENTIAL'; data: CreateCredentialData }
+  | { type: 'UPDATE_CREDENTIAL'; credentialId: number; data: UpdateCredentialData }
+  | { type: 'DELETE_CREDENTIAL'; credentialId: number }
+  | { type: 'NAVIGATE_AND_FILL'; credentialId: number; url: string };
 
 // ---- Auto-fill data ----
 
@@ -61,4 +70,34 @@ export interface CredentialListItem {
   username: string;
   url: string | null;
   tags: string | null;
+}
+
+export interface CredentialDetail {
+  id: number;
+  accountName: string;
+  username: string;
+  maskedPassword: string;
+  url: string | null;
+  notes: string | null;
+  tags: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCredentialData {
+  accountName: string;
+  username: string;
+  password: string;
+  url?: string;
+  notes?: string;
+  tags?: string;
+}
+
+export interface UpdateCredentialData {
+  accountName?: string;
+  username?: string;
+  password?: string;
+  url?: string;
+  notes?: string;
+  tags?: string;
 }
