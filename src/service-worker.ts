@@ -29,7 +29,7 @@ async function handleMessage(message: ExtensionMessage): Promise<unknown> {
     case 'LOGIN_FORM_DETECTED':
       return matchCredentialsByUrl(message.url);
     case 'UNLOCK_VAULT':
-      return unlockVault(message.masterPassword);
+      return loginVault(message.identifier, message.masterPassword);
     case 'VERIFY_TOTP':
       return verifyTotp(message.totpCode);
     case 'GET_CREDENTIAL':
@@ -181,18 +181,19 @@ async function matchCredentialsByUrl(url: string): Promise<CredentialListItem[]>
   }
 }
 
-async function unlockVault(
+async function loginVault(
+  identifier: string,
   masterPassword: string,
 ): Promise<{ isUnlocked: boolean; mfaRequired?: boolean; error?: string }> {
   try {
     const result = await apiClient.post<{ mfaRequired: boolean; sessionToken: string | null }>(
-      '/auth/unlock', { masterPassword },
+      '/auth/login', { identifier, masterPassword },
     );
     if (result.mfaRequired) return { isUnlocked: false, mfaRequired: true };
     if (result.sessionToken) await apiClient.setSessionToken(result.sessionToken);
     return { isUnlocked: true };
   } catch (error: unknown) {
-    return { isUnlocked: false, error: error instanceof Error ? error.message : '解锁失败' };
+    return { isUnlocked: false, error: error instanceof Error ? error.message : '登录失败' };
   }
 }
 

@@ -12,6 +12,7 @@ export function Popup() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [fillStatus, setFillStatus] = useState<string | null>(null);
   // Unlock state
+  const [identifier, setIdentifier] = useState('');
   const [masterPassword, setMasterPassword] = useState('');
   const [totpCode, setTotpCode] = useState('');
   const [mfaRequired, setMfaRequired] = useState(false);
@@ -28,7 +29,7 @@ export function Popup() {
     setUnlockError(null);
     setUnlocking(true);
     try {
-      const r = await chrome.runtime.sendMessage({ type: 'UNLOCK_VAULT', masterPassword });
+      const r = await chrome.runtime.sendMessage({ type: 'UNLOCK_VAULT', identifier, masterPassword });
       if (r?.error) setUnlockError(r.error);
       else if (r?.mfaRequired) setMfaRequired(true);
       else if (r?.isUnlocked) setIsUnlocked(true);
@@ -86,17 +87,20 @@ export function Popup() {
         <div style={{ textAlign: 'center', marginBottom: '12px' }}>
           <div style={{ fontSize: '28px' }}>🔒</div>
           <p style={{ fontSize: '13px', color: '#555', margin: '8px 0 0' }}>
-            {mfaRequired ? '请输入 TOTP 验证码' : '输入主密码解锁密码库'}
+            {mfaRequired ? '请输入 TOTP 验证码' : '登录密码库'}
           </p>
         </div>
         {!mfaRequired ? (
           <>
+            <input type="text" placeholder="用户名或邮箱" value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              style={inputStyle} autoFocus />
             <input type="password" placeholder="主密码" value={masterPassword}
               onChange={(e) => setMasterPassword(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
-              style={inputStyle} autoFocus />
-            <button onClick={handleUnlock} disabled={unlocking || !masterPassword} style={btnPrimary}>
-              {unlocking ? '解锁中...' : '解锁'}
+              style={inputStyle} />
+            <button onClick={handleUnlock} disabled={unlocking || !identifier || !masterPassword} style={btnPrimary}>
+              {unlocking ? '登录中...' : '登录'}
             </button>
           </>
         ) : (

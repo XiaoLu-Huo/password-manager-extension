@@ -7,7 +7,7 @@ export type ExtensionMessage =
   | { type: 'CHECK_VAULT_STATUS' }
   | { type: 'LOGIN_FORM_DETECTED'; url: string }
   | { type: 'FILL_CREDENTIALS'; username: string; password: string }
-  | { type: 'UNLOCK_VAULT'; masterPassword: string }
+  | { type: 'UNLOCK_VAULT'; identifier: string; masterPassword: string }
   | { type: 'VERIFY_TOTP'; totpCode: string }
   | { type: 'GET_CREDENTIAL'; credentialId: number }
   | { type: 'REVEAL_PASSWORD'; credentialId: number }
